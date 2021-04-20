@@ -33,9 +33,15 @@ namespace WindowsFormsApp_FFMPEG_Batch
                 mjpegFiles.Clear();
                 foreach(string s in files)
                 {
-                    mjpegFiles.Add(s);
+                    string filename = Path.GetFileName(s);
+                    mjpegFiles.Add(filename);
                 }
                 System.Windows.Forms.MessageBox.Show("Files found: " + files.Length.ToString(), "Message");
+
+                foreach(string file in mjpegFiles)
+                {
+                    Console.WriteLine(file);
+                }
             }
         }
 
@@ -56,13 +62,22 @@ namespace WindowsFormsApp_FFMPEG_Batch
             System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo
             {
                 WorkingDirectory = textBox1.Text,
-                //WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
                 FileName = textBox2.Text + @"\ffmpeg.exe"
             };
-            string cmdToSend = @"-i 20210208074105.mjpeg output.mp4";
-            startInfo.Arguments = cmdToSend;
-            process.StartInfo = startInfo;
-            process.Start();
+
+            progressBar1.Value = 0;
+            progressBar1.Maximum = mjpegFiles.Count();
+            progressBar1.Step = 1;            
+
+            foreach(string file in mjpegFiles)
+            {
+                string cmdToSend = "-i " + file + " " + Path.GetFileNameWithoutExtension(file) + ".mp4";
+                startInfo.Arguments = cmdToSend;
+                process.StartInfo = startInfo;
+                process.Start();
+                progressBar1.Value += 1;
+            }
         }
     }
 }
